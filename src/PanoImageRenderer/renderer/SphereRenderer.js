@@ -3,8 +3,7 @@ import WebGLUtils from "../WebGLUtils";
 
 const latitudeBands = 60;
 const longitudeBands = 60;
-const radius = 2;
-const ANGLE_CORRECTION_FOR_CENTER_ALIGN = -0.5 * Math.PI;
+const radius = 1;
 
 const textureCoordData = [];
 const vertexPositionData = [];
@@ -13,30 +12,29 @@ let latIdx;
 let lngIdx;
 
 for (latIdx = 0; latIdx <= latitudeBands; latIdx++) {
-	const theta = (latIdx / latitudeBands - 0.5) * Math.PI;
-	const sinTheta = Math.sin(theta);
-	const cosTheta = Math.cos(theta);
+  const v = latIdx / latitudeBands;
+  const theta = (v - 0.5) * Math.PI;
+  const sinTheta = Math.sin(theta);
+  const cosTheta = Math.cos(theta);
 
-	for (lngIdx = 0; lngIdx <= longitudeBands; lngIdx++) {
-		const phi = (lngIdx / longitudeBands - 0.5) * 2 * Math.PI + ANGLE_CORRECTION_FOR_CENTER_ALIGN;
-		const sinPhi = Math.sin(phi);
-		const cosPhi = Math.cos(phi);
-		const x = cosPhi * cosTheta;
-		const y = sinTheta;
-		const z = sinPhi * cosTheta;
-		const u = lngIdx / longitudeBands;
-		const v = latIdx / latitudeBands;
+  for (lngIdx = 0; lngIdx <= longitudeBands; lngIdx++) {
+    const u = lngIdx / longitudeBands;
+    const phi = u * 2 * Math.PI - 1.5 * Math.PI;
+    const sinPhi = Math.sin(phi);
+    const cosPhi = Math.cos(phi);
+    const x = cosPhi * cosTheta;
+    const y = sinTheta;
+    const z = sinPhi * cosTheta;
 
-		textureCoordData.push(u, v);
-		vertexPositionData.push(radius * x, radius * y, radius * z);
+    textureCoordData.push(u, v);
+    vertexPositionData.push(radius * x, radius * y, radius * z);
 
-		if (lngIdx !== longitudeBands && latIdx !== latitudeBands) {
-			const a = latIdx * (longitudeBands + 1) + lngIdx;
-			const b = a + longitudeBands + 1;
-
-			indexData.push(a, b, a + 1, b, b + 1, a + 1);
-		}
-	}
+    if (lngIdx !== longitudeBands && latIdx !== latitudeBands) {
+      const a = latIdx * (longitudeBands + 1) + lngIdx;
+      const b = a + longitudeBands + 1;
+      indexData.push(a, b, a + 1, b, b + 1, a + 1);
+    }
+  }
 }
 
 export default class SphereRenderer extends Renderer {
